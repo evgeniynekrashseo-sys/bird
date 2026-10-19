@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Fluffy Forest</string>
+    <string name="title_activity_main">Fluffy Forest</string>
+    <string name="package_name">agency.blackorange.fluffyforest</string>
+    <string name="custom_url_scheme">agency.blackorange.fluffyforest</string>
+</resources>
