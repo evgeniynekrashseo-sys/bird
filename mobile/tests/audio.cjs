@@ -6,6 +6,7 @@ const vm = require('node:vm');
 
 let oscillators = 0;
 let scheduleCalls = 0;
+let resumeCalls = 0;
 const listeners = {};
 const param = () => ({
   value: 0,
@@ -22,11 +23,11 @@ const node = () => ({
   stop() {},
 });
 class FakeAudioContext {
-  constructor() { this.state = 'running'; this.currentTime = 0; this.destination = node(); }
+  constructor() { this.state = 'suspended'; this.currentTime = 0; this.destination = node(); }
   createGain() { return node(); }
   createOscillator() { return node(); }
   createBiquadFilter() { return node(); }
-  resume() { this.state = 'running'; return Promise.resolve(); }
+  resume() { resumeCalls++; this.state = 'running'; return Promise.resolve(); }
   suspend() { this.state = 'suspended'; return Promise.resolve(); }
 }
 
@@ -47,6 +48,8 @@ vm.runInNewContext(source, sandbox, { filename: 'audio.js' });
   assert.equal(oscillators, 0, 'Music must not autoplay before a gesture');
   listeners.pointerdown();
   await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(resumeCalls, 1, 'iOS must unlock the suspended context on a real touch');
   assert.ok(oscillators > 0, 'Background score must begin after user input');
 
   const beforePick = oscillators;
@@ -57,6 +60,10 @@ vm.runInNewContext(source, sandbox, { filename: 'audio.js' });
   audio.effect('complete');
   assert.equal(oscillators - beforeComplete, 4, 'A completed family gets a four-note chime');
 
+  const beforeChirp = oscillators;
+  audio.effect('chirp');
+  assert.equal(oscillators - beforeChirp, 2, 'Cute hint narration receives a two-note chirp');
+
   audio.setEnabled(false);
   const muted = oscillators;
   audio.effect('win');
@@ -65,7 +72,12 @@ vm.runInNewContext(source, sandbox, { filename: 'audio.js' });
 
   const game = fs.readFileSync(path.join(__dirname, '..', 'www', 'game.js'), 'utf8');
   assert.ok(game.includes('if(sound&&speechEnabled&&t)'), 'Master mute must also silence narration');
+  assert.ok(game.includes("true,true);return}}say(tr('hintFallback'),true,true)"), 'Hint speech must use the pet-voice style');
   assert.ok(game.includes("window.FluffyVoice?.stop()"), 'Muting must stop current narration');
+  const voice = fs.readFileSync(path.join(__dirname, '..', 'src', 'voice.js'), 'utf8');
+  assert.ok(voice.includes('pet ? 1.55 : 1.06'), 'Animal narration needs a distinct higher pitch');
+  const appDelegate = fs.readFileSync(path.join(__dirname, '..', 'ios', 'App', 'App', 'AppDelegate.swift'), 'utf8');
+  assert.ok(appDelegate.includes('setCategory(.playback'), 'iOS must configure an audible playback audio session');
   const html = fs.readFileSync(path.join(__dirname, '..', 'www', 'index.html'), 'utf8');
   assert.ok(html.indexOf('audio.js') < html.indexOf('game.js'), 'Audio engine must load before game');
   const css = fs.readFileSync(path.join(__dirname, '..', 'www', 'style.css'), 'utf8');
