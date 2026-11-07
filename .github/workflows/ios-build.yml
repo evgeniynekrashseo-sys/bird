@@ -1,19 +1,73 @@
-name: Validate iOS project (unsigned)
+name: Fluffy Forest iOS simulator CI (unsigned)
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/ios-build.yml'
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/ios-build.yml'
 permissions:
   contents: read
+concurrency:
+  group: fluffy-ios-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  ios:
-    runs-on: macos-15
+  ios-simulator:
+    # Capacitor 8 requires Xcode 26+. macOS 15 defaults to Xcode 16.4.
+    runs-on: macos-26
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm ci && npm test && npm run sync
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
         working-directory: mobile
-      - name: Build for iOS Simulator
+      - name: Verify puzzle logic, translations and rewarded-ad safety
+        run: npm test
+        working-directory: mobile
+      - name: Prepare iOS native app with development test ads
         run: |
-          xcodebuild -project App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+          npm run build:voice
+          npm run build:ads --if-present
+          npx cap sync ios
+        working-directory: mobile
+      - name: Verify Xcode 26 or newer
+        run: |
+          xcodebuild -version
+          xcodebuild -version | awk 'NR==1 { split($2,v,"."); if (v[1] < 26) exit 1 }'
+      - name: Compile unsigned iOS Simulator app
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/FluffyForestDerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            build 2>&1 | tee "$RUNNER_TEMP/fluffy-xcodebuild.log"
         working-directory: mobile/ios/App
+      - name: Store unsigned Simulator app for QA
+        uses: actions/upload-artifact@v4
+        with:
+          name: fluffy-forest-ios-simulator-${{ github.run_number }}
+          path: ${{ runner.temp }}/FluffyForestDerivedData/Build/Products/Debug-iphonesimulator/App.app
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve iOS build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fluffy-forest-ios-build-log-${{ github.run_number }}
+          path: ${{ runner.temp }}/fluffy-xcodebuild.log
+          if-no-files-found: ignore
+          retention-days: 7
