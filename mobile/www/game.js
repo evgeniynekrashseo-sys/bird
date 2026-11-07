@@ -18,6 +18,7 @@ let speechEnabled=localStorage.getItem('fluffy-forest-voice')!=='off',voiceTutor
 function narrate(t){if(speechEnabled&&t)window.FluffyVoice?.speak(t,window.FluffyVoiceTags?.[lang]||'en-US')}
 function translateStatic(){
   document.documentElement.lang=lang;
+  document.documentElement.dir=['ar','ur'].includes(lang)?'rtl':'ltr';
   document.title=tr('title');
   document.querySelector('meta[name="description"]').content=tr('description');
   $('home').setAttribute('aria-label',tr('homeAria'));

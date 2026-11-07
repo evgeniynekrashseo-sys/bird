@@ -6,3 +6,7 @@
 .locale-picker select{max-width:68%;background:#112c39;color:#ffebc6;border:1px solid #dcca8c88;border-radius:12px;padding:9px 12px;font:inherit}
 .locale-picker select:focus-visible{outline:2px solid #f8d58c}
 #motion,#voice{margin:4px;padding:10px 12px}
+/* Arabic and Urdu read right-to-left; puzzle board coordinates stay stable. */
+html[dir="rtl"] #board{direction:ltr}
+html[dir="rtl"] .mode-card,html[dir="rtl"] .locale-picker{text-align:start}
+html[dir="rtl"] .status>span:last-child{text-align:end}
