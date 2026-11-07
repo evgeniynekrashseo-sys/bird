@@ -1,0 +1,29 @@
+name: Capture real gameplay screenshots for stores
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/store-screenshots.yml'
+      - 'mobile/scripts/capture-store-screenshots.mjs'
+      - 'mobile/www/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+        working-directory: mobile
+      - run: npx playwright install --with-deps chromium
+        working-directory: mobile
+      - run: node scripts/capture-store-screenshots.mjs
+        working-directory: mobile
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fluffy-forest-store-screenshots-1080x1920
+          path: mobile/store/screenshots/*.png
