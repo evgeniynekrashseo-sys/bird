@@ -2,6 +2,12 @@ name: Fluffy Forest iOS App Store archive (signed)
 
 on:
   workflow_dispatch:
+    inputs:
+      upload_to_testflight:
+        description: 'Upload the signed IPA to App Store Connect after a successful build'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -133,6 +139,36 @@ jobs:
           path: ${{ runner.temp }}/fluffy-ipa/*.ipa
           if-no-files-found: error
           retention-days: 3
+
+      - name: Upload signed IPA to App Store Connect for TestFlight
+        if: ${{ inputs.upload_to_testflight }}
+        env:
+          ASC_API_KEY_P8_BASE64: ${{ secrets.ASC_API_KEY_P8_BASE64 }}
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          umask 077
+          : "${ASC_API_KEY_P8_BASE64:?Missing ASC_API_KEY_P8_BASE64}"
+          : "${ASC_API_KEY_ID:?Missing ASC_API_KEY_ID}"
+          : "${ASC_API_ISSUER_ID:?Missing ASC_API_ISSUER_ID}"
+
+          auth_dir="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$auth_dir"
+          chmod 700 "$auth_dir"
+          key_file="$auth_dir/AuthKey_${ASC_API_KEY_ID}.p8"
+          trap 'rm -f "$key_file"' EXIT
+          printf '%s' "$ASC_API_KEY_P8_BASE64" | base64 -D > "$key_file"
+          chmod 600 "$key_file"
+
+          ipa="$(find "$RUNNER_TEMP/fluffy-ipa" -maxdepth 1 -name '*.ipa' -print -quit)"
+          test -s "$ipa"
+          xcrun altool \
+            --upload-app \
+            --type ios \
+            --file "$ipa" \
+            --apiKey "$ASC_API_KEY_ID" \
+            --apiIssuer "$ASC_API_ISSUER_ID"
 
       - name: Remove temporary signing material
         if: always()
