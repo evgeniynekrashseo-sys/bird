@@ -1,8 +1,8 @@
 # Title
-Fluffy Forest
+Fluffy Forest: Animal Sort
 
 # Short description
-Bring fluffy families together in 300 forest puzzles across three difficulty modes.
+Match cute animals in 300 cozy forest puzzles. Play offline!
 
 # Description
 Every little animal needs a family. Move foxes, bunnies, raccoons, bear cubs, kittens and pandas between branches to reunite groups of four.
@@ -11,6 +11,6 @@ Find your pace: Cozy offers three animal types and extra space. Adventure introd
 
 Enjoy 300 puzzles, move targets, stars, hints, undo and automatic progress saving. Watch your companions blink, look around and bounce with joy when their family is complete.
 
-No timer or account required. The mobile app works offline. Version 1.1.0 contains no ads or in-app purchases.
+No timer or account required. The mobile app works offline. Version 1.2.0 contains no ads or in-app purchases.
 
-Current in-game language: Ukrainian. This English listing is prepared for localization planning; do not declare English gameplay until an English interface has been added.
+18 in-game languages, including English, Hindi, Indonesian, Brazilian Portuguese, Spanish, Vietnamese, Urdu, Turkish, Filipino, Russian, Simplified Chinese, Japanese, Korean, German, French, Arabic, Thai and Ukrainian. Native device voices read hints, instructions and celebrations aloud where speech support is installed. Voice guidance is optional.

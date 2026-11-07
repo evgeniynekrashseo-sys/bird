@@ -1,26 +1,27 @@
-# Fluffy Forest 1.1.0 — platform source package
+# Fluffy Forest 1.2.0 — multilingual mobile release source
 
 Publisher: Black Orange Groupe. App ID: `agency.blackorange.fluffyforest`.
 This is a native source package, NOT a signed AAB or IPA. No store submission has occurred.
 
 ## Included
-- Complete offline web game bundled in `www/`.
+- Complete offline web game bundled in `www/`, with 18 interface languages.
 - Android Studio project in `android/`; Xcode SPM project in `ios/App/`.
 - Original artwork, branded launch screens and app icons.
 - Three difficulty campaigns, 100 levels each; independent progress and stars.
 - Genuine closed-eye animation frame, ear movement, idle reactions and celebration.
-- Store copy in Ukrainian and English; privacy page in `www/privacy.html`.
+- Native TTS guidance via Capacitor Community Text To Speech 8; player-selectable voice and language.
+- Store copy in Ukrainian and English; bilingual privacy page in `www/privacy.html`.
 - Tests validating all 300 level solution paths, and reproducible dependency lockfile.
 
 ## Build prerequisites
 Node 22+, npm, Android Studio 2025.2.1+ with the SDK required by android/variables.gradle; iOS requires macOS and a Capacitor-8-compatible Xcode. See https://capacitorjs.com/docs/getting-started/environment-setup . Dependencies are locked to Capacitor 8.5.3.
 
 ## Android
-1. `npm ci` then `npx cap sync android`.
+1. `npm ci` then `npm run sync` (builds the voice bridge and syncs Android/iOS).
 2. `npx cap open android`.
 3. Let Gradle sync, run on a physical device, then Build > Generate Signed Bundle / APK > Android App Bundle.
 4. Use your existing upload key, or create an upload key if this is the first release. Keep it and passwords outside this repository.
-5. The package uses versionCode 2 and versionName 1.1.0. Increase versionCode for each later upload. Check Play Console's current target API requirement before submitting.
+5. The package uses versionCode 3 and versionName 1.2.0; target SDK 36. Increase versionCode for each later upload.
 6. Upload the signed AAB to internal testing first. Complete account verification, content rating, Data Safety, store details and any required testing shown by your Play Console account.
 
 CLI debug build: `cd android && ./gradlew assembleDebug`.
@@ -31,7 +32,7 @@ An unsigned release bundle must be signed with your upload key before Play uploa
 1. On a Mac: `npm ci && npx cap sync ios && npx cap open ios`.
 2. Select your Apple Developer Team under Signing & Capabilities. Confirm the bundle identifier is unused/registered for your account.
 3. Set a physical iPhone or generic iOS device destination. Test, then Product > Archive > Distribute App > App Store Connect.
-4. Release version is 1.1.0, build 2. Configure signing in Xcode; no Apple credentials are embedded.
+4. Release version is 1.2.0, build 3. Configure signing in Xcode; no Apple credentials are embedded.
 5. Upload to TestFlight, complete privacy and age rating forms, real device screenshots, public support/privacy URLs, then submit for review.
 
 ## Before store submission — still required
@@ -41,9 +42,10 @@ An unsigned release bundle must be signed with your upload key before Play uploa
 - Publish `www/privacy.html` to a publicly reachable URL; the owner-private ChatGPT preview must not be used as the store privacy URL.
 - Confirm publisher contact details, audience and age rating in each console. Do not infer child-directed status from the artwork alone.
 - Review any future advertising, analytics or purchases before changing privacy declarations. This build has none.
+- Native speakers should proofread locale copy and physical devices should verify installed TTS voices; voice availability depends on OS voice packs.
 
 ## Test and maintenance
-`npm test`. The test verifies every generated board, animal counts, capacities and every solution move for all 300 campaign levels.
+`npm test`. The test verifies every generated board, animal counts, capacities and every solution move for all 300 campaign levels, plus all 18 translation packs.
 `www/` is canonical mobile web source. Run `npx cap sync` after changes.
 The root GitHub web deployment uses the same game files; online hosting access is separate from offline mobile behavior.
 

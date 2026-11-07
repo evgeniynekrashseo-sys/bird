@@ -1,5 +1,8 @@
-name: Build Android test artifacts
-on: workflow_dispatch
+name: Build Android release candidates
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -15,13 +18,13 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: android-actions/setup-android@v3
-      - run: npm ci && npm test && npx cap sync android
+      - run: npm ci && npm test && npm run sync
         working-directory: mobile
       - run: chmod +x gradlew && ./gradlew assembleDebug bundleRelease
         working-directory: mobile/android
       - uses: actions/upload-artifact@v4
         with:
-          name: fluffy-forest-android-unsigned
+          name: fluffy-forest-android-1.2.0-unsigned
           path: |
             mobile/android/app/build/outputs/apk/debug/*.apk
             mobile/android/app/build/outputs/bundle/release/*.aab
