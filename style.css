@@ -10,3 +10,12 @@
 html[dir="rtl"] #board{direction:ltr}
 html[dir="rtl"] .mode-card,html[dir="rtl"] .locale-picker{text-align:start}
 html[dir="rtl"] .status>span:last-child{text-align:end}
+
+/* Avoid square GPU shadow tiles around moving fireflies on iOS. */
+#flies{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#flies i{display:block;width:30px;height:30px;margin:-15px 0 0 -15px;background:radial-gradient(circle,#fff3c7 0 4%,#ffe2a5cc 7%,#ffd47866 20%,#ffce5522 40%,transparent 70%);border:0;border-radius:50%;box-shadow:none;outline:0;filter:none;opacity:.9;animation:fireflyDrift 8s ease-in-out infinite}
+@keyframes fireflyDrift{0%,100%{transform:translate(0,0) scale(.9);opacity:.55}50%{transform:translate(15px,-24px) scale(1.1);opacity:1}}
+/* Reflect the saved master sound setting clearly on the main screen. */
+#sound{position:relative}
+#sound.muted{opacity:.76}
+#sound.muted::after{content:'';position:absolute;top:6px;left:19px;width:2px;height:28px;background:#ffedcb;border-radius:2px;transform:rotate(-45deg);box-shadow:0 0 2px #102e3a}
