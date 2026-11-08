@@ -52,6 +52,26 @@ try {
   await capture('03-expert-challenge.png');
   await page.locator('#difficulty').click();
   await capture('04-three-modes-and-languages.png');
+  // Capture the same live game in the native iPad 13-inch portrait viewport.
+  // This is a real rendered game screen, not a resized iPhone image.
+  const ipadContext = await browser.newContext({
+    viewport: { width: 1024, height: 1366 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+    locale: 'en-US',
+    reducedMotion: 'reduce',
+  });
+  const ipadPage = await ipadContext.newPage();
+  await ipadPage.goto(`http://127.0.0.1:${server.address().port}`, { waitUntil: 'networkidle' });
+  await ipadPage.locator('#board .branch').first().waitFor();
+  await ipadPage.evaluate(() => document.fonts.ready);
+  await ipadPage.screenshot({ path: path.join(outputRoot, '05-ipad-13-gameplay.png'), animations: 'disabled' });
+  console.log('Captured 05-ipad-13-gameplay.png (2048x2732)');
+  await ipadPage.locator('#difficulty').click();
+  await ipadPage.screenshot({ path: path.join(outputRoot, '06-ipad-13-difficulty.png'), animations: 'disabled' });
+  console.log('Captured 06-ipad-13-difficulty.png (2048x2732)');
+  await ipadContext.close();
   await browser.close();
 } finally {
   if (browser) await browser.close().catch(() => {});
