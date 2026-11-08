@@ -119,6 +119,43 @@ async function testControls(page) {
   assert.equal(await page.locator('#board .branch').count(), 7);
 }
 
+async function testAnimationIntegrity(page) {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  const animal = page.locator('#board .animal').first();
+  assert.ok(await animal.count(), 'At least one animal must appear on the board');
+  assert.equal(await page.locator('#board .ear, #board .blink-frame').count(), 0,
+    'Old clipped full-head/ear duplicates must never render');
+  assert.equal(await page.locator('#board .blink-eye').count(),
+    2 * await page.locator('#board .animal').count(), 'Each animal needs two separate soft eye overlays');
+
+  await animal.evaluate(el => el.classList.add('curious', 'blinking'));
+  const active = await animal.evaluate(el => ({
+    animation: getComputedStyle(el).animationName,
+    eyeOpacity: getComputedStyle(el.querySelector('.blink-left')).opacity,
+    eyeMask: getComputedStyle(el.querySelector('.blink-left')).maskImage,
+  }));
+  assert.notEqual(active.animation, 'none', 'Animal gesture must play while animations are enabled');
+  assert.equal(active.eyeOpacity, '1', 'Blinking should close just the eyes');
+  assert.match(active.eyeMask, /radial-gradient/, 'Eye overlay needs a feathered mask without a hard tile');
+  if (page.viewportSize().width === 375) {
+    await mkdir(artifactRoot, { recursive: true });
+    await page.screenshot({ path: path.join(artifactRoot, 'animal-animation-preview.png') });
+  }
+  await animal.evaluate(el => el.classList.remove('curious', 'blinking'));
+
+  await page.locator('#difficulty').click();
+  await page.locator('#motion').click();
+  assert.equal(await animal.evaluate(el => getComputedStyle(el).animationName), 'none',
+    'Motion-off setting must disable animal gestures');
+  await page.locator('#motion').click();
+  await page.locator('#close').click();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  assert.equal(await animal.evaluate(el => getComputedStyle(el).animationName), 'none',
+    'Reduced-motion preference must disable gestures');
+  assert.equal(await animal.locator('.blink-left').evaluate(el => getComputedStyle(el).display), 'none',
+    'Reduced-motion preference must disable blinks');
+}
+
 async function testProfile(browser, profile, baseUrl) {
   const context = await browser.newContext({
     viewport: { width: profile.width, height: profile.height },
@@ -144,6 +181,7 @@ async function testProfile(browser, profile, baseUrl) {
     assert.ok(size.appLeft >= -2 && size.appRight <= size.viewport + 2,
       `${profile.name}: game clipped horizontally ${JSON.stringify(size)}`);
 
+    await testAnimationIntegrity(page);
     await testControls(page);
     for (let level = 1; level <= profile.levels; level++) await playLevel(page, level);
     assert.equal(Number(await page.locator('#level').innerText()), 3);
