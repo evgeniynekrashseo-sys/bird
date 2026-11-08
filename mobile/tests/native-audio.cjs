@@ -106,8 +106,15 @@ async function tick() {
   }
   const project = fs.readFileSync(path.join(root, 'ios/App/App.xcodeproj/project.pbxproj'), 'utf8');
   for (const name of names) assert.ok(project.includes(name + '.mp3 in Resources'), `${name} is not copied into the iOS app bundle`);
-  const swiftPackages = fs.readFileSync(path.join(root, 'ios/App/CapApp-SPM/Package.swift'), 'utf8');
-  assert.ok(swiftPackages.includes('CapacitorCommunityNativeAudio'), 'iOS native audio package must be registered with Xcode');
+  const podfile = fs.readFileSync(path.join(root, 'ios/App/Podfile'), 'utf8');
+  assert.ok(podfile.includes("pod 'CapacitorCommunityNativeAudio'"), 'Native audio must be registered in the iOS CocoaPods project');
+  assert.ok(podfile.includes("pod 'CapacitorCommunityTextToSpeech'"), 'Animal hint voice plugin must remain registered');
+  assert.ok(!fs.existsSync(path.join(root, 'ios/App/CapApp-SPM')),
+    'The old SPM directory must be absent or Capacitor will ignore CocoaPods');
+  for (const workflow of ['ios-build.yml', 'ios-release.yml']) {
+    const yml = fs.readFileSync(path.join(root, '..', '.github/workflows', workflow), 'utf8');
+    assert.ok(yml.includes('-workspace App.xcworkspace'), `iOS ${workflow} must compile using installed pods`);
+  }
   const index = fs.readFileSync(path.join(root, 'www/index.html'), 'utf8');
   assert.ok(index.indexOf('audio.js') < index.indexOf('native-audio.js') && index.indexOf('native-audio.js') < index.indexOf('game.js'),
     'Native audio bridge must replace WebAudio before the game initializes');
