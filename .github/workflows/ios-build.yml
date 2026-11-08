@@ -36,6 +36,7 @@ jobs:
       - name: Prepare iOS native app with development test ads
         run: |
           npm run build:voice
+          npm run build:audio
           npm run build:ads --if-present
           npx cap sync ios
         working-directory: mobile

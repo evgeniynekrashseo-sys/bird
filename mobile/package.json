@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "build:voice": "esbuild src/voice.js --bundle --format=iife --platform=browser --target=es2020 --outfile=www/voice.js",
-    "sync": "npm run build:voice && cap sync",
+    "build:audio": "esbuild src/native-audio.js --bundle --format=iife --platform=browser --target=es2020 --outfile=www/native-audio.js",
+    "sync": "npm run build:voice && npm run build:audio && cap sync",
     "android": "cap open android",
     "ios": "cap open ios",
-    "test": "node tests/levels.cjs && node tests/locales.cjs && node tests/audio.cjs"
+    "test": "node tests/levels.cjs && node tests/locales.cjs && node tests/audio.cjs && node tests/native-audio.cjs"
   },
   "dependencies": {
+    "@capacitor-community/native-audio": "8.0.0",
     "@capacitor-community/text-to-speech": "8.0.2",
     "@capacitor/android": "8.5.3",
     "@capacitor/core": "8.5.3",

@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A01D00110000000000000001 /* music.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A01D00220000000000000001 /* music.mp3 */; };
+		A01D00110000000000000002 /* pick.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A01D00220000000000000002 /* pick.mp3 */; };
+		A01D00110000000000000003 /* move.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A01D00220000000000000003 /* move.mp3 */; };
+		A01D00110000000000000004 /* invalid.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A01D00220000000000000004 /* invalid.mp3 */; };
+		A01D00110000000000000005 /* complete.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A01D00220000000000000005 /* complete.mp3 */; };
+		A01D00110000000000000006 /* win.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A01D00220000000000000006 /* win.mp3 */; };
+		A01D00110000000000000007 /* chirp.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A01D00220000000000000007 /* chirp.mp3 */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4D22ABE82AF431CB00220026 /* CapApp-SPM */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
@@ -19,6 +26,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A01D00220000000000000001 /* music.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sounds/music.mp3; sourceTree = "<group>"; };
+		A01D00220000000000000002 /* pick.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sounds/pick.mp3; sourceTree = "<group>"; };
+		A01D00220000000000000003 /* move.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sounds/move.mp3; sourceTree = "<group>"; };
+		A01D00220000000000000004 /* invalid.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sounds/invalid.mp3; sourceTree = "<group>"; };
+		A01D00220000000000000005 /* complete.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sounds/complete.mp3; sourceTree = "<group>"; };
+		A01D00220000000000000006 /* win.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sounds/win.mp3; sourceTree = "<group>"; };
+		A01D00220000000000000007 /* chirp.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sounds/chirp.mp3; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -64,6 +78,13 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				A01D00220000000000000001 /* music.mp3 */,
+				A01D00220000000000000002 /* pick.mp3 */,
+				A01D00220000000000000003 /* move.mp3 */,
+				A01D00220000000000000004 /* invalid.mp3 */,
+				A01D00220000000000000005 /* complete.mp3 */,
+				A01D00220000000000000006 /* win.mp3 */,
+				A01D00220000000000000007 /* chirp.mp3 */,
 				9582B6822FE993A50072D4E8 /* SceneDelegate.swift */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
@@ -142,6 +163,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A01D00110000000000000001 /* music.mp3 in Resources */,
+				A01D00110000000000000002 /* pick.mp3 in Resources */,
+				A01D00110000000000000003 /* move.mp3 in Resources */,
+				A01D00110000000000000004 /* invalid.mp3 in Resources */,
+				A01D00110000000000000005 /* complete.mp3 in Resources */,
+				A01D00110000000000000006 /* win.mp3 in Resources */,
+				A01D00110000000000000007 /* chirp.mp3 in Resources */,
 				504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */,
 				50B271D11FEDC1A000F3C39B /* public in Resources */,
 				504EC30F1FED79650016851F /* Assets.xcassets in Resources */,
@@ -300,7 +328,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -322,7 +350,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
