@@ -33,11 +33,18 @@ jobs:
       - name: Verify puzzle logic, translations and rewarded-ad safety
         run: npm test
         working-directory: mobile
-      - name: Prepare iOS native app with development test ads
+      - name: Ensure CocoaPods is available on macOS runner
+        run: |
+          if ! command -v pod >/dev/null 2>&1; then brew install cocoapods; fi
+          pod --version
+      - name: Prepare iOS native app with development test ads and local CocoaPods
         run: |
           npm run build:voice
+          npm run build:audio
           npm run build:ads --if-present
           npx cap sync ios
+          test -s ios/App/Podfile.lock
+          test -s ios/App/App.xcworkspace/contents.xcworkspacedata
         working-directory: mobile
       - name: Verify Xcode 26 or newer
         run: |
@@ -47,7 +54,7 @@ jobs:
         run: |
           set -o pipefail
           xcodebuild \
-            -project App.xcodeproj \
+            -workspace App.xcworkspace \
             -scheme App \
             -configuration Debug \
             -sdk iphonesimulator \

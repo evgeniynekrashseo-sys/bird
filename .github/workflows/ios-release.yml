@@ -40,12 +40,20 @@ jobs:
           npm ci
           npm test
 
-      - name: Synchronize native iOS app
+      - name: Ensure CocoaPods is available on macOS runner
+        run: |
+          if ! command -v pod >/dev/null 2>&1; then brew install cocoapods; fi
+          pod --version
+
+      - name: Synchronize native iOS app and local CocoaPods
         working-directory: mobile
         run: |
           npm run build:voice
+          npm run build:audio
           npm run build:ads --if-present
           npx cap sync ios
+          test -s ios/App/Podfile.lock
+          test -s ios/App/App.xcworkspace/contents.xcworkspacedata
 
       - name: Check signing inputs and Xcode version
         env:
@@ -99,7 +107,7 @@ jobs:
         run: |
           set -euo pipefail
           xcodebuild \
-            -project App.xcodeproj \
+            -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
