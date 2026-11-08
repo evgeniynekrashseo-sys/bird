@@ -1,0 +1,52 @@
+name: Fluffy Forest gameplay QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/qa-browser.yml'
+      - 'mobile/www/**'
+      - 'mobile/scripts/qa-browser.cjs'
+      - 'mobile/tests/**'
+      - 'mobile/package*.json'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/qa-browser.yml'
+      - 'mobile/www/**'
+      - 'mobile/scripts/qa-browser.cjs'
+      - 'mobile/tests/**'
+      - 'mobile/package*.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gameplay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - name: Test 300 generated levels, 18 languages and audio
+        run: npm ci && npm test
+        working-directory: mobile
+      - name: Install browser QA runner
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+        working-directory: mobile
+      - name: Play through the game on phones and tablet
+        run: node scripts/qa-browser.cjs
+        working-directory: mobile
+      - name: Archive QA reports and failure screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fluffy-forest-qa-${{ github.run_number }}
+          path: mobile/qa-artifacts/
+          if-no-files-found: ignore
