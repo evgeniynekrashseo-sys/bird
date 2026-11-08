@@ -46,6 +46,10 @@ An unsigned release bundle must be signed with your upload key before Play uploa
 
 ## Test and maintenance
 `npm test`. The test verifies every generated board, animal counts, capacities and every solution move for all 300 campaign levels, plus all 18 translation packs.
+
+For interactive browser QA, run `npm ci`, `npm install --no-save --no-package-lock playwright@1.56.1`, `npx playwright install chromium`, then `node scripts/qa-browser.cjs` from `mobile/`.
+This plays the first two Adventure levels using real UI clicks on three mobile/tablet viewports, tests Hint, Undo, Restart, extra branches, sound, languages, voice/animation settings and saved progress; it also completes Cozy and Expert level 1 on the Android-sized viewport. Failure screenshots and `qa-summary.json` are written to the ignored `qa-artifacts/` directory. The `Fluffy Forest gameplay QA` GitHub Actions workflow runs on relevant pull requests and uploads the report. This is browser-based mobile viewport testing, not a substitute for real-device audio, touch and native APK/IPA testing.
+
 `www/` is canonical mobile web source. Run `npx cap sync` after changes.
 The root GitHub web deployment uses the same game files; online hosting access is separate from offline mobile behavior.
 
