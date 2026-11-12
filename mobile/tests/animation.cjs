@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'../..');
+const js=fs.readFileSync(path.join(root,'game.js'),'utf8');
+const css=fs.readFileSync(path.join(root,'style.css'),'utf8');
+assert.equal(js,fs.readFileSync(path.join(root,'mobile/www/game.js'),'utf8'),'Web/mobile JS must match');
+assert.equal(css,fs.readFileSync(path.join(root,'mobile/www/style.css'),'utf8'),'Web/mobile CSS must match');
+assert.doesNotMatch(js,/blink-frame|ear ear-left|ear ear-right/,'Never duplicate the cropped head for ears');
+assert.doesNotMatch(css,/\.ear-left\{|\.blink-frame\{/,'Remove obsolete clipped overlays');
+assert.match(js,/blink-eye blink-left/,'Blinks must use separate feathered overlays');
+assert.match(js,/--idle-duration/,'Animals must have individualized breathing phases');
+assert.match(css,/@keyframes forestBreath/,'Idle breathing keyframes required');
+assert.match(css,/\.animal\.flying\{animation:none!important\}/,'Flying sprite must not inherit idle animation');
+assert.match(css,/\.still \.blink-eye\{opacity:0!important\}/,'Animation toggle must hide blink overlay');
+assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.animal\{animation:none!important\}/,'Reduced-motion support required');
+console.log('PASS: web/mobile animations match; no clipped head overlays; idle/motion guards present');

@@ -35,8 +35,20 @@ function translateStatic(){
 try{const p=JSON.parse(localStorage.getItem('fluffy-forest-v1'));if(p&&Number.isInteger(p.level)&&p.level>0&&p.level<=100&&Array.isArray(p.state)&&p.state.length<=9&&p.state.every(b=>Array.isArray(b)&&b.length<=4&&b.every(t=>Number.isInteger(t)&&t>=0&&t<6))){({level,state,route,moves,extra}=p);unlocked=Math.max(level,p.unlocked||1);mode=MODES[p.mode]?p.mode:'adventure';campaign={...campaign,...p.campaign};campaign[mode]=unlocked;target=p.target||Math.max(8,Math.ceil((p.route?.length||20)*1.35));stars=p.stars||{};living=p.living!==false;sound=!!p.sound;}}catch{}
 function save(){try{localStorage.setItem('fluffy-forest-v1',JSON.stringify({level,unlocked,state,route,moves,extra,mode,campaign,target,stars,living,sound}))}catch{}}
 function start(l){level=l;unlocked=campaign[mode]||1;const g=generate(l,mode);target=Math.max(8,Math.ceil(g.route.length*(mode==='cozy'?1.8:mode==='expert'?1:1.35)));state=g.state;route=g.route;initial=copy(state);history=[];moves=0;selected=-1;extra=false;busy=false;voiceTutored=false;render();say(tr('instruction'));save()}
-function sprite(t){const el=document.createElement('span');el.className='animal species-'+t;el.dataset.type=t;el.style.setProperty('--sprite-x',`${t%3*50}%`);el.style.setProperty('--sprite-y',`${Math.floor(t/3)*100}%`);el.style.backgroundPosition=`${t%3*50}% ${Math.floor(t/3)*100}%`;el.style.animationDelay=`${-Math.random()*4}s`;el.innerHTML='<i class="blink-frame"></i><i class="ear ear-left"></i><i class="ear ear-right"></i>';return el}
-function render(){const board=$('board');board.innerHTML='';state.forEach((b,i)=>{const el=document.createElement('button');el.className='branch'+(i===selected?' selected':'')+(b.length===4&&b.every(t=>t===b[0])?' complete':'');el.setAttribute('aria-label',`${tr('branch')} ${i+1}: ${b.map(t=>tr('names')[t]).join(', ')||tr('empty')}`);el.innerHTML='<span class="wood"></span>';if(!b.length)el.insertAdjacentHTML('beforeend','<span class="slots">· · · ·</span>');b.forEach((t,j)=>{let animal=sprite(t);if(mode==='expert'&&j<b.length-1&&!b.every(x=>x===b[0]))animal.classList.add('mystery');el.append(animal)});el.onclick=()=>tap(i);board.append(el)});$('level').textContent=String(level).padStart(2,'0');$('moves').textContent=`${moves} / ${target} ${tr('moves')}`;$('difficulty').textContent=modeName(mode);$('app').classList.toggle('still',!living);$('undo').disabled=!history.length||busy;$('extra').disabled=extra||busy||mode==='expert';$('chapter').textContent=tr('chapters')[level<6?0:level<16?1:2];$('progress').style.width=state.filter(b=>b.length===4&&b.every(t=>t===b[0])).length/(state.flat().length/4)*100+'%'}
+function sprite(t,branchIndex=0,slotIndex=0){
+ const el=document.createElement('span');el.className='animal species-'+t;el.dataset.type=t;
+ const x=`${t%3*50}%`,y=`${Math.floor(t/3)*100}%`;
+ el.style.setProperty('--sprite-x',x);el.style.setProperty('--sprite-y',y);
+ el.style.backgroundPosition=`${x} ${y}`;
+ // Stable per-branch phases: rerendering controls must not restart everybody in sync.
+ const seed=(t*17+branchIndex*13+slotIndex*7)%19;
+ el.style.setProperty('--idle-duration',`${(3.4+(seed%7)*.18).toFixed(2)}s`);
+ el.style.setProperty('--idle-delay',`${(-seed*.23).toFixed(2)}s`);
+ // Never duplicate/clamp the head into rotating ears: visible rectangular sprite seams.
+ el.innerHTML='<i aria-hidden="true" class="blink-eye blink-left"></i><i aria-hidden="true" class="blink-eye blink-right"></i>';
+ return el;
+}
+function render(){const board=$('board');board.innerHTML='';state.forEach((b,i)=>{const el=document.createElement('button');el.className='branch'+(i===selected?' selected':'')+(b.length===4&&b.every(t=>t===b[0])?' complete':'');el.setAttribute('aria-label',`${tr('branch')} ${i+1}: ${b.map(t=>tr('names')[t]).join(', ')||tr('empty')}`);el.innerHTML='<span class="wood"></span>';if(!b.length)el.insertAdjacentHTML('beforeend','<span class="slots">· · · ·</span>');b.forEach((t,j)=>{let animal=sprite(t,i,j);if(mode==='expert'&&j<b.length-1&&!b.every(x=>x===b[0]))animal.classList.add('mystery');el.append(animal)});el.onclick=()=>tap(i);board.append(el)});$('level').textContent=String(level).padStart(2,'0');$('moves').textContent=`${moves} / ${target} ${tr('moves')}`;$('difficulty').textContent=modeName(mode);$('app').classList.toggle('still',!living);$('undo').disabled=!history.length||busy;$('extra').disabled=extra||busy||mode==='expert';$('chapter').textContent=tr('chapters')[level<6?0:level<16?1:2];$('progress').style.width=state.filter(b=>b.length===4&&b.every(t=>t===b[0])).length/(state.flat().length/4)*100+'%'}
 // Chime after a full family lands, not when the board initially renders.
 let completedBeforeRender=0,completionLanding=false;
 const originalRender=render;
@@ -65,6 +77,24 @@ window.FluffyAudio?.setEnabled(sound,true);
 if(!state)start(1);else{initial=copy(state);render();if(won(state))victory()}
 function chooseMode(){if(busy)return;modal(`<h2>${tr('modeTitle')}</h2><p>${tr('modeBody')}</p>`+Object.entries(MODES).map(([k,c])=>`<button class="mode-card ${mode===k?'active':''}" data-mode="${k}"><b>${modeName(k)}</b><span>${tr('modeDetails')[k]}</span></button>`).join('')+`<p>${tr('starsHelp')}</p><button id="motion" class="secondary">${tr('animation')}: ${tr(living?'on':'off')}</button><button id="voice" class="secondary">${tr('voice')}: ${tr(speechEnabled?'on':'off')}</button><label class="locale-picker">${tr('language')} <select id="switchLanguage">`+Object.entries(window.FluffyLocaleNames).map(([code,label])=>`<option value="${code}" ${lang===code?'selected':''}>${label}</option>`).join('')+'</select></label>');document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;$('modal').close();start(campaign[mode]||1);narrate(tr('instruction'))});$('motion').onclick=()=>{living=!living;save();render();chooseMode()};$('voice').onclick=()=>{speechEnabled=!speechEnabled;localStorage.setItem('fluffy-forest-voice',speechEnabled?'on':'off');if(!speechEnabled)window.FluffyVoice?.stop();chooseMode();if(speechEnabled)narrate(tr('voiceOn'))};$('switchLanguage').onchange=e=>{lang=e.target.value;localStorage.setItem('fluffy-forest-lang',lang);window.FluffyVoice?.stop();translateStatic();render();chooseMode();narrate(tr('instruction'))}}
 $('difficulty').onclick=chooseMode;
-setInterval(()=>{if(!living||document.hidden||busy||$('modal').open||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const pets=[...document.querySelectorAll('.branch .animal:not(.mystery)')];if(!pets.length)return;const p=pets[Math.floor(Math.random()*pets.length)];p.classList.add('blinking');setTimeout(()=>p.classList.remove('blinking'),150);if(Math.random()<.35)setTimeout(()=>{p.classList.add('blinking');setTimeout(()=>p.classList.remove('blinking'),130)},320);const q=pets[Math.floor(Math.random()*pets.length)];q.classList.add('curious');setTimeout(()=>q.classList.remove('curious'),1600)},1100);
+// Ambient motion is intentionally sparse. CSS handles breathing; JS adds occasional expressions.
+setInterval(()=>{
+ if(!living||document.hidden||busy||$('modal').open||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const pets=[...document.querySelectorAll('.branch:not(.selected):not(.complete) .animal:not(.mystery)')];
+ if(!pets.length)return;
+ const blinkPet=pets[Math.floor(Math.random()*pets.length)];
+ if(Math.random()<.78){
+  blinkPet.classList.add('blinking');
+  setTimeout(()=>blinkPet.classList.remove('blinking'),135);
+  if(Math.random()<.23)setTimeout(()=>{if(blinkPet.isConnected){blinkPet.classList.add('blinking');setTimeout(()=>blinkPet.classList.remove('blinking'),125)}},275);
+ }
+ if(Math.random()<.42){
+  const pet=pets[Math.floor(Math.random()*pets.length)];
+  if(!pet.classList.contains('curious')){
+   pet.classList.add('curious');
+   setTimeout(()=>pet.classList.remove('curious'),1550);
+  }
+ }
+},1650);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){save();window.FluffyAudio?.pause();window.FluffyVoice?.stop()}else window.FluffyAudio?.resume()});
 window.FluffyTest={generate,legal,won,MODES};
