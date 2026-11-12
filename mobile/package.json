@@ -8,7 +8,7 @@
     "sync": "npm run build:voice && npm run build:audio && cap sync",
     "android": "cap open android",
     "ios": "cap open ios",
-    "test": "node tests/levels.cjs && node tests/locales.cjs && node tests/audio.cjs && node tests/native-audio.cjs"
+    "test": "node tests/levels.cjs && node tests/locales.cjs && node tests/audio.cjs && node tests/native-audio.cjs && node tests/animation.cjs"
   },
   "dependencies": {
     "@capacitor-community/native-audio": "8.0.0",
