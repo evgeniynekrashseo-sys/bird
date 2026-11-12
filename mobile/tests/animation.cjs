@@ -15,4 +15,14 @@ assert.match(css,/@keyframes forestBreath/,'Idle breathing keyframes required');
 assert.match(css,/\.animal\.flying\{animation:none!important\}/,'Flying sprite must not inherit idle animation');
 assert.match(css,/\.still \.blink-eye\{opacity:0!important\}/,'Animation toggle must hide blink overlay');
 assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.animal\{animation:none!important\}/,'Reduced-motion support required');
-console.log('PASS: web/mobile animations match; no clipped head overlays; idle/motion guards present');
+for(const name of ['animal-bodies.webp','animal-ear-left.webp','animal-ear-right.webp']) {
+  assert(fs.existsSync(path.join(root,'assets',name)),'Missing web art: '+name);
+  assert(fs.existsSync(path.join(root,'mobile/www/assets',name)),'Missing mobile art: '+name);
+}
+assert.match(css,/earLeftWiggle/,'Independent left-ear movement required');
+assert.match(css,/earRightWiggle/,'Independent right-ear movement required');
+assert.match(css,/assets\/animal-bodies\.webp/,'Body art must exclude separate ears');
+assert.match(js,/ear-art ear-art-left/,'DOM must render a left ear');
+assert.match(js,/ear-art ear-art-right/,'DOM must render a right ear');
+assert.match(css,/prefers-reduced-motion:reduce\)\{\.ear-art\{animation:none!important\}/,'Ears must honor reduced motion');
+console.log('PASS: web/mobile animations match; separate movable ears; idle/motion guards present');
