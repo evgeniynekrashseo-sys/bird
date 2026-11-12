@@ -2,6 +2,14 @@ name: Build Android release candidates
 on:
   push:
     branches: [main]
+  pull_request:
+    paths:
+      - '.github/workflows/android-build.yml'
+      - 'mobile/www/**'
+      - 'mobile/src/**'
+      - 'mobile/android/**'
+      - 'mobile/tests/**'
+      - 'mobile/package*.json'
   workflow_dispatch:
 permissions:
   contents: read
